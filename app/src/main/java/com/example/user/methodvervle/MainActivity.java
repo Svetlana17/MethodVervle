@@ -37,7 +37,7 @@ import static android.util.Half.EPSILON;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
-
+//Рабочие пермещение
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     LinkedList<RawData> dataArray = new LinkedList<>();
     SensorManager manager;
@@ -390,22 +390,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
     class SensorData {
-        private MySensorEvent gyrEvent;
-        private MySensorEvent accEvent;
+        private MySensorEvent gyrEvent, accEvent;
         private float xaf, yaf, zaf;
         private float xgf, ygf, zgf;
         private float alpha = 0.05f;
         private float k = 0.5f;
         float pxaf, pyaf, pzaf;
-        float shag;
+
         float timestamp;
         private MySensorEvent prefaccEvent;
         private Time prefTime;///++
         private float vxfit, vyfit, vzfit;
         private float Sxfit, Syfit, Szfit;
         float vx,vy,vz;
+        float alphaAcc, bettaAcc, gammaAcc;
 
-        float kt= (float) 11.3163649;// поправочный коэффицент для оси Х
+
         public void setParams(float alpha, float k) {
             this.alpha = alpha;
             this.k = k;
@@ -432,9 +432,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             xaf = xaf + alpha * (accEvent.values[0] - xaf);
             yaf = yaf + alpha * (accEvent.values[1] - yaf);
             zaf = zaf + alpha * (accEvent.values[2] - zaf);
-            xgf = ((1-k)*gyrEvent.values[0])+(k*accEvent.values[0]);
-            ygf = ((1-k)*gyrEvent.values[1])+(k*accEvent.values[1]);
-            zgf = ((1-k)*gyrEvent.values[2])+(k*accEvent.values[2]);
+            /// угол по акслерометру
+            alphaAcc= (float) Math.atan(accEvent.values[0]/(sqrt((accEvent.values[1]* accEvent.values[1]+accEvent.values[2]*accEvent.values[2]))));
+            bettaAcc= (float) Math.atan(accEvent.values[1]/(sqrt((accEvent.values[0]* accEvent.values[0]+accEvent.values[2]*accEvent.values[2]))));
+            gammaAcc= (float) Math.atan(accEvent.values[2]/(sqrt((accEvent.values[0]* accEvent.values[0]+accEvent.values[1]*accEvent.values[1]))));
+
+
+           // Комплементарный фильтр
+            xgf = ((1-k)*gyrEvent.values[0])+(k*alphaAcc);
+            ygf = ((1-k)*gyrEvent.values[1])+(k*bettaAcc);
+            zgf = ((1-k)*gyrEvent.values[2])+(k*gammaAcc);
             float dT = 0;
             float dTS =0;
             if(this.prefaccEvent!=null){

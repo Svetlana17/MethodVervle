@@ -312,8 +312,6 @@ public class Fyrie extends AppCompatActivity  implements SensorEventListener {
                             data.setGyr(evt);
                             if (data.isAccDataExists()) {
                                 writer.write(data.getStringData(s));
-
-
                             }
 
                             break;
